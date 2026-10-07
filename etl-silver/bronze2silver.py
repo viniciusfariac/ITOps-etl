@@ -92,6 +92,10 @@ def json_to_df(s3, files):
         convert_csv(antena, "antena", key)
         convert_csv(firewall, "firewall", key)
 
+    if not os.path.exists("csv/antena.csv"):
+        print("Nenhum arquivo de antena foi processado.")
+        return False
+
     df_antena = pd.read_csv("csv/antena.csv")
     df_firewall = pd.read_csv("csv/firewall.csv")
 
@@ -99,9 +103,12 @@ def json_to_df(s3, files):
     df_firewall = calculate_mbps_firewall(df_firewall)
     df_firewall = check_consistency(df_antena, df_firewall)
 
+
+
     df_antena.to_csv("csv/antena.csv",index=False)
 
     df_firewall.to_csv("csv/firewall.csv",index=False)
+    return True
 
 def convert_csv(data, type, key):
     data["source_file"] = key
@@ -206,7 +213,11 @@ def main():
         print("Sem dados")
         return
         
-    json_to_df(s3, files)
+    validate = json_to_df(s3, files)
+
+    if (not validate):
+        return
+    
     upload_csv("antena", s3)
     upload_csv("firewall", s3)
     remove_file("antena")
