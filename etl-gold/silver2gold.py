@@ -124,7 +124,7 @@ def hardware_efficienct_report(df_antena: pd.DataFrame):
 
 def convert_csv(df: pd.DataFrame, filename):
     CSV_DIR.mkdir(exist_ok=True)
-    df.to_csv(f"csv/{filename}.csv", index=False)
+    df.to_csv(CSV_DIR / f"{filename}.csv", index=False)
 
 
 def main():

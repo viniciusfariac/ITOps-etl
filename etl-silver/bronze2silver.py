@@ -107,9 +107,9 @@ def json_to_df(s3, files):
 
 
 
-    df_antena.to_csv("csv/antena.csv",index=False)
 
-    df_firewall.to_csv("csv/firewall.csv",index=False)
+    df_antena.to_csv(CSV_DIR / "antena.csv", index=False)
+    df_firewall.to_csv(CSV_DIR / "firewall.csv", index=False)
     return True
 
 def convert_csv(data, type, key):
