@@ -196,17 +196,22 @@ def upload_csv(file, s3):
         os.getenv("BUCKET_NAME"),
         f"trusted/{file}_{formatt_date}.csv"
     )
+    print("Envio bem sucedido", datetime.now())
 
 def main():
     configure_env()
     s3 = create_s3_conn()
     files = get_files(s3)
+    if len(files) <= 0:
+        print("Sem dados")
+        return
+        
     json_to_df(s3, files)
     upload_csv("antena", s3)
     upload_csv("firewall", s3)
     remove_file("antena")
     remove_file("firewall")
-    print("Envio bem sucedido", datetime.now())
+    
 
 
 main()
