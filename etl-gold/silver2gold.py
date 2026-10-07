@@ -7,6 +7,9 @@ from datetime import datetime
 from dotenv import load_dotenv
 from pathlib import Path
 
+BASE_DIR = Path(__file__).parent
+CSV_DIR = BASE_DIR / "csv"
+
 def configure_env():
 
     BASE_DIR = Path(__file__).parent.parent
@@ -120,8 +123,8 @@ def hardware_efficienct_report(df_antena: pd.DataFrame):
     return df
 
 def convert_csv(df: pd.DataFrame, filename):
-    os.makedirs("csv", exist_ok=True)
-    df.to_csv(f"csv/{filename}.csv")
+    CSV_DIR.mkdir(exist_ok=True)
+    df.to_csv(f"csv/{filename}.csv", index=False)
 
 
 def main():
@@ -155,14 +158,14 @@ def upload_csv(file, s3):
     formatt_date = now.strftime("%Y-%m-%d_%H-%M")
 
     s3.upload_file(
-        f"csv/{file}.csv",
+        str(CSV_DIR / f"{file}.csv"),
         os.getenv("BUCKET_NAME"),
         f"client/{file}/{file}_{formatt_date}.csv"
     )
 
 def remove_file(file):
     try:
-        os.remove(f"csv/{file}.csv")
+        os.remove(CSV_DIR / f"{file}.csv")
     except FileNotFoundError:
         print(f"O arquivo {file} não foi encontrado.")
     except PermissionError:

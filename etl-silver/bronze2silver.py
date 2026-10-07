@@ -4,10 +4,12 @@ from dotenv import load_dotenv
 from pathlib import Path
 import pandas as pd
 
+BASE_DIR = Path(__file__).parent
+CSV_DIR = BASE_DIR / "csv"
+
 
 def configure_env():
-    BASE_DIR = Path(__file__).parent.parent
-    ENV_PATH = BASE_DIR / ".env"
+    ENV_PATH = BASE_DIR.parent / ".env"
 
     load_dotenv(ENV_PATH)
 
@@ -92,12 +94,12 @@ def json_to_df(s3, files):
         convert_csv(antena, "antena", key)
         convert_csv(firewall, "firewall", key)
 
-    if not os.path.exists("csv/antena.csv"):
+    if not (CSV_DIR / "antena.csv").exists():
         print("Nenhum arquivo de antena foi processado.")
         return False
 
-    df_antena = pd.read_csv("csv/antena.csv")
-    df_firewall = pd.read_csv("csv/firewall.csv")
+    df_antena = pd.read_csv(CSV_DIR / "antena.csv")
+    df_firewall = pd.read_csv(CSV_DIR / "firewall.csv")
 
     df_antena = calculate_mbps_antenas(df_antena)
     df_firewall = calculate_mbps_firewall(df_firewall)
@@ -114,8 +116,8 @@ def convert_csv(data, type, key):
     data["source_file"] = key
     new_df = pd.DataFrame([data])
 
-    os.makedirs("csv", exist_ok=True)
-    path = f"csv/{type}.csv"
+    CSV_DIR.mkdir(exist_ok=True)
+    path = CSV_DIR / f"{type}.csv"
 
     if os.path.exists(path):
         df = pd.read_csv(path)
@@ -189,7 +191,7 @@ def check_consistency(df_antena, df_firewall):
 
 def remove_file(file):
     try:
-        os.remove(f"csv/{file}.csv")
+        os.remove(CSV_DIR / f"{file}.csv")
     except FileNotFoundError:
         print(f"O arquivo {file} não foi encontrado.")
     except PermissionError:
@@ -199,7 +201,7 @@ def upload_csv(file, s3):
     now = datetime.now()
     formatt_date = now.strftime("%Y-%m-%d_%H-%M")
     s3.upload_file(
-        f"csv/{file}.csv",
+        str(CSV_DIR / f"{file}.csv"),
         os.getenv("BUCKET_NAME"),
         f"trusted/{file}_{formatt_date}.csv"
     )

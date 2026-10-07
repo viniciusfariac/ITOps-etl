@@ -68,7 +68,10 @@ def create_json():
 
     file_name = f"{data['antena']['ID_antena']}_{formatt_date}.json"
 
-    with open(f"data/{file_name}", "w") as file:
+    data_path = Path(__file__).parent / "data"
+    data_path.mkdir(exist_ok=True)
+
+    with open(data_path / file_name, "w") as file:
         json.dump(data, file, indent=4)
 
     return file_name
@@ -81,15 +84,18 @@ def create_s3_conn():
     return s3
 
 def upload_json_file(file, s3):
+    data_path = Path(__file__).parent / "data"
+
     s3.upload_file(
-        f"data/{file}",
+        data_path / file,
         os.getenv("BUCKET_NAME"),
         f"raw/{file}"
     )
 
 def remove_json(file):
+    data_path = Path(__file__).parent / "data"
     try:
-        os.remove(f"data/{file}")
+        os.remove(data_path / file)
         print(f"O arquivo '{file}' foi apagado com sucesso.")
     except FileNotFoundError:
         print(f"O arquivo '{file}' não foi encontrado.")
